@@ -11,22 +11,22 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Word.class}, version = 1, exportSchema = false)
-public abstract class WordRoomDatabase extends RoomDatabase {
+@Database(entities = {Message.class}, version = 1, exportSchema = false)
+public abstract class MessageRoomDatabase extends RoomDatabase {
 
-    public abstract WordDao wordDao();
+    public abstract MessageDao messageDao();
 
-    private static volatile WordRoomDatabase INSTANCE;
+    private static volatile MessageRoomDatabase INSTANCE;
     private static final int NUMBER_OF_THREADS = 4;
     static final ExecutorService databaseWriteExecutor =
             Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
-    static WordRoomDatabase getDatabase(final Context context) {
+    static MessageRoomDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
-            synchronized (WordRoomDatabase.class) {
+            synchronized (MessageRoomDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                            WordRoomDatabase.class, "word_database")
+                            MessageRoomDatabase.class, "message_database")
                             .addCallback(sRoomDatabaseCallback)
                             .build();
                 }
@@ -45,13 +45,13 @@ public abstract class WordRoomDatabase extends RoomDatabase {
             databaseWriteExecutor.execute(() -> {
                 // Populate the database in the background.
                 // If you want to start with more words, just add them.
-                WordDao dao = INSTANCE.wordDao();
-                dao.deleteAll();
+                MessageDao dao = INSTANCE.messageDao();
+                //dao.deleteAll();
 
-                Word word = new Word("Hello");
-                dao.insert(word);
-                word = new Word("World");
-                dao.insert(word);
+                Message message = new Message("Hello");
+                dao.insert(message);
+                message = new Message("World");
+                dao.insert(message);
             });
         }
     };

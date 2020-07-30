@@ -8,26 +8,26 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.marsanpat.alba.Database.Word;
+import com.marsanpat.alba.Database.Message;
 import com.marsanpat.alba.R;
 
 import java.util.List;
 
-public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordViewHolder> {
+public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.WordViewHolder> {
 
     class WordViewHolder extends RecyclerView.ViewHolder {
-        private final TextView wordItemView;
+        private final TextView messageItemView;
 
         private WordViewHolder(View itemView) {
             super(itemView);
-            wordItemView = itemView.findViewById(R.id.textView);
+            messageItemView = itemView.findViewById(R.id.textView);
         }
     }
 
     private final LayoutInflater mInflater;
-    private List<Word> mWords; // Cached copy of words
+    private List<Message> messages; // Cached copy of words
 
-    WordListAdapter(Context context) { mInflater = LayoutInflater.from(context); }
+    MessageListAdapter(Context context) { mInflater = LayoutInflater.from(context); }
 
     @Override
     public WordViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -37,26 +37,26 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
 
     @Override
     public void onBindViewHolder(WordViewHolder holder, int position) {
-        if (mWords != null) {
-            Word current = mWords.get(position);
-            holder.wordItemView.setText(current.getWord());
+        if (messages != null) {
+            Message current = messages.get(position);
+            holder.messageItemView.setText(current.getMessage());
         } else {
             // Covers the case of data not being ready yet.
-            holder.wordItemView.setText("No Word");
+            holder.messageItemView.setText("No Message");
         }
     }
 
-    void setWords(List<Word> words){
-        mWords = words;
+    void setMessages(List<Message> words){
+        messages = words;
         notifyDataSetChanged();
     }
 
     // getItemCount() is called many times, and when it is first called,
-    // mWords has not been updated (means initially, it's null, and we can't return null).
+    // this.messages has not been updated (means initially, it's null, and we can't return null).
     @Override
     public int getItemCount() {
-        if (mWords != null)
-            return mWords.size();
+        if (messages != null)
+            return messages.size();
         else return 0;
     }
 }

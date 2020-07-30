@@ -18,12 +18,13 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_baseline_add_circle_24"/>
-        <!--android:contentDescription="@string/add_word"/>-->
+        android:layout_marginBottom="64dp"
+        android:src="@drawable/ic_baseline_add_circle_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+    <!--android:contentDescription="@string/add_word"/>-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
