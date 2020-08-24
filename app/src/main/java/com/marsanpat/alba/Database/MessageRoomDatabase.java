@@ -46,7 +46,7 @@ public abstract class MessageRoomDatabase extends RoomDatabase {
                 // Populate the database in the background.
                 // If you want to start with more words, just add them.
                 MessageDao dao = INSTANCE.messageDao();
-                //dao.deleteAll();
+                dao.deleteAll();
 
                 Message message = new Message("Hello");
                 dao.insert(message);

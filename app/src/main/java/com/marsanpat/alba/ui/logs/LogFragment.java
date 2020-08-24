@@ -1,4 +1,4 @@
-package com.marsanpat.alba.ui.dashboard;
+package com.marsanpat.alba.ui.logs;
 
 import android.app.Application;
 import android.content.Intent;

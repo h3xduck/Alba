@@ -1,4 +1,4 @@
-package com.marsanpat.alba.ui.dashboard;
+package com.marsanpat.alba.ui.logs;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -13,12 +13,12 @@ import com.marsanpat.alba.R;
 
 import java.util.List;
 
-public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.WordViewHolder> {
+public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.MessageViewHolder> {
 
-    class WordViewHolder extends RecyclerView.ViewHolder {
+    class MessageViewHolder extends RecyclerView.ViewHolder {
         private final TextView messageItemView;
 
-        private WordViewHolder(View itemView) {
+        private MessageViewHolder(View itemView) {
             super(itemView);
             messageItemView = itemView.findViewById(R.id.textView);
         }
@@ -27,16 +27,18 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
     private final LayoutInflater mInflater;
     private List<Message> messages; // Cached copy of words
 
-    MessageListAdapter(Context context) { mInflater = LayoutInflater.from(context); }
-
-    @Override
-    public WordViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = mInflater.inflate(R.layout.recyclerview_item, parent, false);
-        return new WordViewHolder(itemView);
+    MessageListAdapter(Context context) {
+        mInflater = LayoutInflater.from(context);
     }
 
     @Override
-    public void onBindViewHolder(WordViewHolder holder, int position) {
+    public MessageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = mInflater.inflate(R.layout.recyclerview_item, parent, false);
+        return new MessageViewHolder(itemView);
+    }
+
+    @Override
+    public void onBindViewHolder(MessageViewHolder holder, int position) {
         if (messages != null) {
             Message current = messages.get(position);
             holder.messageItemView.setText(current.getMessage());
@@ -46,8 +48,8 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
         }
     }
 
-    void setMessages(List<Message> words){
-        messages = words;
+    void setMessages(List<Message> messages){
+        this.messages = messages;
         notifyDataSetChanged();
     }
 
@@ -55,8 +57,8 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
     // this.messages has not been updated (means initially, it's null, and we can't return null).
     @Override
     public int getItemCount() {
-        if (messages != null)
-            return messages.size();
+        if (this.messages != null)
+            return this.messages.size();
         else return 0;
     }
 }
