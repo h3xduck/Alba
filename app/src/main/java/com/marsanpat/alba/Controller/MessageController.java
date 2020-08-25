@@ -6,6 +6,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.marsanpat.alba.Database.Message;
+import com.marsanpat.alba.Utils.JSONManager;
+
+import org.json.JSONException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,12 +33,13 @@ public class MessageController {
                     InputStream input = socket.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
-                    while (true){
+                    while (true) {
                         String response = reader.lines().collect(Collectors.joining());
                         Log.d("debug", "Received from server: " + response);
-                        if(!response.equals("")){
-                            messageList.postValue(new Message(response));
-                        }else{
+                        if (!response.equals("")) {
+                            String[] decodedJSON = new JSONManager().extractJSON(response);
+                            messageList.postValue(new Message(decodedJSON[1]));
+                        } else {
                             Log.d("debug", "Ignored, empty string");
                         }
                         Thread.sleep(10000);
@@ -43,14 +47,14 @@ public class MessageController {
 
 
                 } catch (UnknownHostException ex) {
-
                     Log.d("debug", "Server not found: " + ex.getMessage());
-
                 } catch (IOException ex) {
-
                     Log.d("debug", "I/O error: " + ex.getMessage());
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch(JSONException ex){
+                    Log.d("debug", "JSON error: " + ex.getMessage());
+                    ex.printStackTrace();
+                }catch (Exception e) {
+                    Log.d("debug", "FATAL error: " + e.getMessage());
                 }
             }
         });
