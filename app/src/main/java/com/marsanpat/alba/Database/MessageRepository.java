@@ -30,10 +30,11 @@ public class MessageRepository {
         newServerMessage.observeForever(new Observer<Message>() {
             @Override
             public void onChanged(@Nullable final Message message) {
-                if(newServerMessage.getValue().getMessage()!=null){
+                if(!newServerMessage.getValue().getMessage().equals("")){
                     Log.d("debug", "new message to be inserted is: "+newServerMessage.getValue().getMessage());
                     insert(newServerMessage.getValue());
                 }
+
             }
         });
 

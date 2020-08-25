@@ -14,11 +14,12 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MessageController {
     private final String HOSTNAME = "192.168.1.46";
     private final int PORT = 5001;
-    public static MutableLiveData<Message> messageList = new MutableLiveData<>();
+    public static MutableLiveData<Message> messageList = new MutableLiveData<Message>(new Message(""));
 
     public void startServer(){
         Thread thread = new Thread(new Runnable() {
@@ -30,9 +31,13 @@ public class MessageController {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
                     while (true){
-                        String response = reader.readLine();
+                        String response = reader.lines().collect(Collectors.joining());
                         Log.d("debug", "Received from server: " + response);
-                        messageList.postValue(new Message(response));
+                        if(!response.equals("")){
+                            messageList.postValue(new Message(response));
+                        }else{
+                            Log.d("debug", "Ignored, empty string");
+                        }
                         Thread.sleep(10000);
                     }
 
