@@ -12,6 +12,8 @@ public class Message {
     @ColumnInfo(name = "message")
     private String message;
 
+    //TODO INCLUDE MESSAGE TYPES: Error, info, etc.
+
     public Message(String message){
         this.message = message;
     }

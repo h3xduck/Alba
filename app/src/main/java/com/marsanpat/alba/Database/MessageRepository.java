@@ -5,10 +5,15 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 
 import com.marsanpat.alba.Controller.MessageController;
+import com.marsanpat.alba.Controller.ProtocolParser;
+import com.marsanpat.alba.Utils.JSONManager;
+
+import org.json.JSONException;
 
 import java.util.List;
 
@@ -28,8 +33,44 @@ public class MessageRepository {
             @Override
             public void onChanged(@Nullable final Message message) {
                 if(!newServerMessage.getValue().getMessage().equals("")){
-                    Log.d("debug", "new message to be inserted is: "+newServerMessage.getValue().getMessage());
-                    insert(newServerMessage.getValue());
+                    String messageReceived = newServerMessage.getValue().getMessage();
+                    Log.d("debug", "Repository received: "+messageReceived);
+                    ProtocolParser protocolParser = new ProtocolParser();
+                    //The parser decides what to do with the new message.
+                    Pair<String, Integer> resultBuffer = protocolParser.parse(messageReceived);
+                    switch (resultBuffer.second){
+                        case -1:
+                            Log.e("debug", "The server sent an invalid packet.");
+                            break;
+                        case 0:
+                            Log.d("debug", "Server sent new data for the DB.");
+                            try {
+                                String[] decodedJSON = new JSONManager().extractJSON(resultBuffer.first);
+                                Log.d("debug", "Final message to introduce is: "+decodedJSON[1]);
+                                insert(new Message(decodedJSON[1]));
+                            }catch(JSONException ex) {
+                                Log.e("debug", "JSON error: " + ex.getMessage());
+                                ex.printStackTrace();
+                            }
+
+                            break;
+                        case 1:
+                            //TODO ERRORS MUST HAVE OWN TABLE
+                            Log.d("debug", "Server sent an error.");
+                            insert(new Message(resultBuffer.first));
+                            break;
+                        case 2:
+                            Log.d("debug", "Server sent some info data");
+                            insert(new Message(resultBuffer.first));
+                            break;
+                        case 3:
+                        case 4:
+                            //TODO create PING-PONG(s) logic
+                            Log.d("debug", "Server sent ping/pong");
+                            break;
+
+                    }
+
                 }
 
             }

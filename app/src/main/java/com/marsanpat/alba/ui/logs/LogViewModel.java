@@ -23,7 +23,11 @@ public class LogViewModel extends ViewModel {
     }
 
 
-    LiveData<List<Message>> getAllMessages() { return allMessages; }
+    LiveData<List<Message>> getAllMessages() {
+        return allMessages;
+    }
 
-    public void insert(Message message) { mRepository.insert(message); }
+    public void insert(Message message) {
+        mRepository.insert(message);
+    }
 }

@@ -14,6 +14,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.stream.Collectors;
@@ -53,6 +54,7 @@ public class MessageController {
             @Override
             public void run() {
                 try (Socket socket = new Socket(HOSTNAME, PORT)) {
+                    Thread.sleep(3000);//Artificial initial delay, just for testing purposes
                     clientActive = true; //Connection successful
                     InputStream input = socket.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(input));
@@ -65,12 +67,18 @@ public class MessageController {
                             Log.d("debug", "Connection idle");
                         }
                         if (!response.equals("")) {
-                            String[] decodedJSON = new JSONManager().extractJSON(response);
-                            messageList.postValue(new Message(decodedJSON[1]));
+                            messageList.postValue(new Message(response));
                         } else {
                             //Log.d("debug", "Ignored, empty string");
                         }
                         Thread.sleep(10000);
+
+                        //This code checks if the server closed the connection.
+                        //This is the only way to do it in the TCP protocol
+                        if(!isServerConnected(socket)){
+                            Log.d("debug", "Connection closed by server");
+                            clientActive = false;
+                        }
                     }
 
 
@@ -78,9 +86,6 @@ public class MessageController {
                     Log.d("debug", "Server not found: " + ex.getMessage());
                 } catch (IOException ex) {
                     Log.d("debug", "I/O error: " + ex.getMessage());
-                } catch(JSONException ex){
-                    Log.d("debug", "JSON error: " + ex.getMessage());
-                    ex.printStackTrace();
                 }catch (Exception e) {
                     Log.d("debug", "FATAL error: " + e.getMessage());
                 }finally {
@@ -99,12 +104,22 @@ public class MessageController {
     //TODO: RETURN A LIST
     public LiveData<Message> getNewMessages(){
         LiveData<Message> result = messageList;
-        //messageList = null;
+        //TODO check this up: messageList = null;
         return result;
     }
 
     public boolean isClientActive(){
         return clientActive;
+    }
+
+    public boolean isServerConnected(Socket socket){
+        try{
+            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+            writer.write("");
+            return true;
+        }catch(IOException ex){
+            return false;
+        }
     }
 
 }
