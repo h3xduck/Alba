@@ -21,17 +21,9 @@ public class MessageRepository {
     public MessageRepository(Application application) {
         MessageRoomDatabase db = MessageRoomDatabase.getDatabase(application);
 
-        MessageController controller = new MessageController();
-        int returnCode = controller.startClient();
-        if(returnCode == 0){
-            Toast.makeText(application.getBaseContext(),"Connection with server successful", Toast.LENGTH_LONG).show();
-        }else if(returnCode == -1){
-            Toast.makeText(application.getBaseContext(),"Couldn't connect with remote server", Toast.LENGTH_LONG).show();
-        }
-
         messageDao = db.messageDao();
 
-        newServerMessage = controller.getNewMessages();
+        newServerMessage = MessageController.getInstance().getNewMessages();
         newServerMessage.observeForever(new Observer<Message>() {
             @Override
             public void onChanged(@Nullable final Message message) {

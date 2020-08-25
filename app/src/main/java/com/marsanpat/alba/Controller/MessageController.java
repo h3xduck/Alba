@@ -19,10 +19,21 @@ import java.net.UnknownHostException;
 import java.util.stream.Collectors;
 
 public class MessageController {
+    private static MessageController messageController;
+
     private final String HOSTNAME = "192.168.1.46";
     private final int PORT = 5001;
 
     public static boolean clientActive = false;
+
+    //SINGLETON PATTERN
+    public  static MessageController getInstance() {
+        if (messageController==null) {
+            messageController = new MessageController();
+        }
+        return messageController;
+    }
+    private MessageController(){}
 
     public static MutableLiveData<Message> messageList = new MutableLiveData<Message>(new Message(""));
 
@@ -48,7 +59,11 @@ public class MessageController {
 
                     while (clientActive) { //Reads from stream in 10sec intervals. Stops when something halts the client externally.
                         String response = reader.lines().collect(Collectors.joining());
-                        Log.d("debug", "Received from server: " + response);
+                        if(response!=""){
+                            Log.d("debug", "Received from server: " + response);
+                        }else{
+                            Log.d("debug", "Connection idle");
+                        }
                         if (!response.equals("")) {
                             String[] decodedJSON = new JSONManager().extractJSON(response);
                             messageList.postValue(new Message(decodedJSON[1]));
@@ -86,6 +101,10 @@ public class MessageController {
         LiveData<Message> result = messageList;
         //messageList = null;
         return result;
+    }
+
+    public boolean isClientActive(){
+        return clientActive;
     }
 
 }
