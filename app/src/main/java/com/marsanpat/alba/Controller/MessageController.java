@@ -16,31 +16,44 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class MessageController {
     private final String HOSTNAME = "192.168.1.46";
     private final int PORT = 5001;
+
+    public static boolean clientActive = false;
+
     public static MutableLiveData<Message> messageList = new MutableLiveData<Message>(new Message(""));
 
-    public void startServer(){
+    /**
+     * Starts client connection with remote server.
+     * @return
+     * 0 if success
+     * -1 if connection was already established
+     * -2 if error
+     */
+    public int startClient(){
+        if(clientActive){
+            return -1; //Client is already connected to the server, don't start another connection thread.
+        }
         Thread thread = new Thread(new Runnable() {
 
             @Override
             public void run() {
                 try (Socket socket = new Socket(HOSTNAME, PORT)) {
+                    clientActive = true; //Connection successful
                     InputStream input = socket.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
-                    while (true) {
+                    while (clientActive) { //Reads from stream in 10sec intervals. Stops when something halts the client externally.
                         String response = reader.lines().collect(Collectors.joining());
                         Log.d("debug", "Received from server: " + response);
                         if (!response.equals("")) {
                             String[] decodedJSON = new JSONManager().extractJSON(response);
                             messageList.postValue(new Message(decodedJSON[1]));
                         } else {
-                            Log.d("debug", "Ignored, empty string");
+                            //Log.d("debug", "Ignored, empty string");
                         }
                         Thread.sleep(10000);
                     }
@@ -55,10 +68,17 @@ public class MessageController {
                     ex.printStackTrace();
                 }catch (Exception e) {
                     Log.d("debug", "FATAL error: " + e.getMessage());
+                }finally {
+                    clientActive = false; //Client stopped.
                 }
             }
         });
         thread.start();
+        if(clientActive){
+            return 0;
+        }else{
+            return -2;
+        }
     }
 
     //TODO: RETURN A LIST

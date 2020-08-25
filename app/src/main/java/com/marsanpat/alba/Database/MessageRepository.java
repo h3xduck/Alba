@@ -2,6 +2,7 @@ package com.marsanpat.alba.Database;
 
 import android.app.Application;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
@@ -9,7 +10,6 @@ import androidx.lifecycle.Observer;
 
 import com.marsanpat.alba.Controller.MessageController;
 
-import java.util.Date;
 import java.util.List;
 
 public class MessageRepository {
@@ -22,7 +22,12 @@ public class MessageRepository {
         MessageRoomDatabase db = MessageRoomDatabase.getDatabase(application);
 
         MessageController controller = new MessageController();
-        controller.startServer();
+        int returnCode = controller.startClient();
+        if(returnCode == 0){
+            Toast.makeText(application.getBaseContext(),"Connection with server successful", Toast.LENGTH_LONG).show();
+        }else if(returnCode == -1){
+            Toast.makeText(application.getBaseContext(),"Couldn't connect with remote server", Toast.LENGTH_LONG).show();
+        }
 
         messageDao = db.messageDao();
 
