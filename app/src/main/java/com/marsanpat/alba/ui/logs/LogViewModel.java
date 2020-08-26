@@ -18,7 +18,7 @@ public class LogViewModel extends ViewModel {
 
     public LogViewModel(Application application) {
 
-        mRepository = new MessageRepository(application);
+        mRepository = MessageRepository.getInstance(application);
         allMessages = mRepository.getAllMessages();
     }
 

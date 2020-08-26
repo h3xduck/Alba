@@ -23,7 +23,17 @@ public class MessageRepository {
     private LiveData<List<Message>> mAllMessages;
     private LiveData<Message> newServerMessage;
 
-    public MessageRepository(Application application) {
+    private static MessageRepository messageRepository;
+
+    //SINGLETON PATTERN
+    public  static MessageRepository getInstance(Application application) {
+        if (messageRepository==null) {
+            messageRepository = new MessageRepository(application);
+        }
+        return messageRepository;
+    }
+
+    private MessageRepository(Application application) {
         MessageRoomDatabase db = MessageRoomDatabase.getDatabase(application);
 
         messageDao = db.messageDao();
@@ -96,5 +106,15 @@ public class MessageRepository {
         MessageRoomDatabase.databaseWriteExecutor.execute(() -> {
             messageDao.insert(message);
         });
+    }
+
+    /**
+     * Returns connection state with server
+     * @return
+     * true if connected
+     * false if disconnected
+     */
+    public LiveData<Boolean> getClientConnectionState(){
+        return MessageController.getInstance().getLiveClientState();
     }
 }
