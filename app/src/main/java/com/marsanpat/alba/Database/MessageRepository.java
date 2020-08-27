@@ -15,6 +15,7 @@ import com.marsanpat.alba.Utils.JSONManager;
 
 import org.json.JSONException;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class MessageRepository {
@@ -25,6 +26,7 @@ public class MessageRepository {
 
     private static MessageRepository messageRepository;
     private boolean communicatingWithServer = false;
+    private String buildUpControllerMessage =""; //Constructs the whole message received from the controller by concatenation.
 
     //SINGLETON PATTERN
     public  static MessageRepository getInstance(Application application) {
@@ -49,7 +51,8 @@ public class MessageRepository {
                     ProtocolParser protocolParser = new ProtocolParser();
                     //The parser decides what to do with the new message.
                     Pair<String, Integer> resultBuffer = protocolParser.parse(messageReceived);
-                    if(resultBuffer.second!=100&&!communicatingWithServer){
+                    List<Integer> codesAbsentFromDropping = Arrays.asList(100, 1, -1); //This codes are not dropped when there is no STARTCONN
+                    if(!codesAbsentFromDropping.contains(resultBuffer.second)&&!communicatingWithServer){
                         Log.e("debug", "DROPPED PACKAGE: Server did not send STARTCONN first");
                         return;
                     }
@@ -58,40 +61,45 @@ public class MessageRepository {
                             Log.e("debug", "The server sent an invalid packet.");
                             break;
                         case 0:
-                            Log.d("debug", "Server sent new data for the DB.");
-                            try {
-                                String[] decodedJSON = new JSONManager().extractJSON(resultBuffer.first);
-                                Log.d("debug", "Final message to introduce is: "+decodedJSON[1]);
-                                insert(new Message(decodedJSON[1]));
-                            }catch(JSONException ex) {
-                                Log.e("debug", "JSON error: " + ex.getMessage());
-                                ex.printStackTrace();
-                            }
+                            Log.i("debug", "Server sent new data for the DB.");
+                            Log.d("debug", "Server sent part of a message: "+resultBuffer.first);
+                            buildUpControllerMessage += resultBuffer.first;
 
                             break;
                         case 1:
                             //TODO ERRORS MUST HAVE OWN TABLE
-                            Log.d("debug", "Server sent an error.");
+                            Log.e("debug", "Server sent an error.");
                             insert(new Message(resultBuffer.first));
                             break;
                         case 2:
-                            Log.d("debug", "Server sent some info data");
-                            insert(new Message(resultBuffer.first));
+                            Log.i("debug", "Server sent some info data");
+                            buildUpControllerMessage+=resultBuffer.first;
                             break;
                         case 3:
                         case 4:
                             //TODO create PING-PONG(s) logic
-                            Log.d("debug", "Server sent ping/pong");
+                            Log.i("debug", "Server sent ping/pong");
                             break;
                         case 100:
-                            Log.d("debug", "STARTCONN received");
+                            Log.i("debug", "STARTCONN received");
                             communicatingWithServer = true;
                             break;
                         case 200:
-                            Log.d("debug", "ENDCOMM received");
+                            Log.i("debug", "ENDCOMM received");
+                            Log.i("debug", "Introducing final message");
                             communicatingWithServer = false;
-                            break;
-
+                            try{
+                                String[] decodedJSON = new JSONManager().extractJSON(buildUpControllerMessage);
+                                insert(new Message(decodedJSON[1]));
+                                Log.i("debug", "SUCCESS");
+                                break;
+                            }catch(JSONException ex) {
+                                Log.e("debug", "JSON error: " + ex.getMessage());
+                                Log.e("debug", "Discarded message: "+buildUpControllerMessage);
+                                ex.printStackTrace();
+                             }finally {
+                                buildUpControllerMessage="";
+                            }
 
                     }
 
