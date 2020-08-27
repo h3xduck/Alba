@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.marsanpat.alba.Database.Message;
 import com.marsanpat.alba.Utils.JSONManager;
+import com.marsanpat.alba.ui.logs.LogFragment;
 
 import org.json.JSONException;
 
@@ -19,6 +20,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class MessageController {
@@ -69,18 +71,16 @@ public class MessageController {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
                     while (clientActive) { //Reads from stream in 10sec intervals. Stops when something halts the client externally.
-                        String response = reader.lines().collect(Collectors.joining());
-                        if(!response.equals("")){
-                            Log.d("debug", "Received from server: " + response);
+                        char[] response = new char[1024];
+                        int charsRead = reader.read(response, 0 , 1024);
+                        if(charsRead!=-1){
+                            Log.d("debug", "Received from server: " + Arrays.toString(response));
+                            Log.d("debug", "Read "+charsRead+" bytes in total");
                             //We received something from the server (might just be a PING), but enough to check connection is open
                             keepAliveTimer = System.currentTimeMillis();
+                            messageList.postValue(new Message(new String(response)));
                         }else{
                             Log.d("debug", "Connection idle");
-                        }
-                        if (!response.equals("")) {
-                            messageList.postValue(new Message(response));
-                        } else {
-                            //Log.d("debug", "Ignored, empty string");
                         }
                         Thread.sleep(10000);
 

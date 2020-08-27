@@ -24,6 +24,7 @@ public class MessageRepository {
     private LiveData<Message> newServerMessage;
 
     private static MessageRepository messageRepository;
+    private boolean communicatingWithServer = false;
 
     //SINGLETON PATTERN
     public  static MessageRepository getInstance(Application application) {
@@ -48,6 +49,10 @@ public class MessageRepository {
                     ProtocolParser protocolParser = new ProtocolParser();
                     //The parser decides what to do with the new message.
                     Pair<String, Integer> resultBuffer = protocolParser.parse(messageReceived);
+                    if(resultBuffer.second!=100&&!communicatingWithServer){
+                        Log.e("debug", "DROPPED PACKAGE: Server did not send STARTCONN first");
+                        return;
+                    }
                     switch (resultBuffer.second){
                         case -1:
                             Log.e("debug", "The server sent an invalid packet.");
@@ -78,6 +83,15 @@ public class MessageRepository {
                             //TODO create PING-PONG(s) logic
                             Log.d("debug", "Server sent ping/pong");
                             break;
+                        case 100:
+                            Log.d("debug", "STARTCONN received");
+                            communicatingWithServer = true;
+                            break;
+                        case 200:
+                            Log.d("debug", "ENDCOMM received");
+                            communicatingWithServer = false;
+                            break;
+
 
                     }
 

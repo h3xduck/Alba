@@ -9,25 +9,36 @@ import java.util.List;
 
 public class ProtocolParser {
     private static final List<String> KEYWORDS =
-            Arrays.asList("INCLUDE", "ERROR", "INFO", "PING", "PONG");
+            Arrays.asList("INCLUDE", "ERROR", "INFO", "PING", "PONG", "STARTCONN", "ENDCONN");
+    private static final String HEADER_SEPARATOR = "::"; //Indicates where the header ends.
+    private static final String PROTOCOL_SEPARATOR = "\n##ALBA##\n"; //Indicates the end of the message received (the rest is filled with 0s).
 
     private boolean isValidProtocolMessage(String input){
-        String[] parts = input.split(":", 2);
-        Log.d("debug", "Separated as "+parts[0]+" and "+parts[1]);
-        if(KEYWORDS.contains(parts[0])){
-            return true;
+        try {
+            String[] parts = input.split(HEADER_SEPARATOR, 2);
+            Log.d("debug", "Separated as " + parts[0] + " and " + parts[1]);
+            if (KEYWORDS.contains(parts[0])) {
+                String[] parts2 = parts[1].split(PROTOCOL_SEPARATOR, 2);
+                Log.d("debug", "Then separated as " + parts2[0] + " and " + parts2[1]);
+                if(parts2[1]!=null){
+                    return true;
+                }
+            }
+            return false;
+        }catch (Exception ex){
+            return false;
         }
-        return false;
     }
 
     private String getHeader (String input){
-        String[] parts = input.split(":", 2);
+        String[] parts = input.split(HEADER_SEPARATOR, 2);
         return parts[0];
     }
 
     private String getContent (String input){
-        String[] parts = input.split(":", 2);
-        return parts[1];
+        String[] parts = input.split(HEADER_SEPARATOR, 2);
+        String[] parts2 = parts[1].split(PROTOCOL_SEPARATOR, 2);
+        return parts2[0];
     }
 
 
@@ -43,7 +54,9 @@ public class ProtocolParser {
      * <String, 2> if it is some info sent by the server, not needed to be included in the DB
      * <null, 3> if it is a PING
      * <null, 4> if it is a PONG
-     * <null, -1> if error (parser could not parse).
+     * <null, -1> if error (parser could not parse)
+     * <null, 100> if communication starts
+     * <null, 200> if communication ends
      */
     public Pair<String, Integer> parse(String input){
         //TODO: This can be optimized. I'm dividing the string so many times
@@ -60,6 +73,10 @@ public class ProtocolParser {
                     return new Pair<>(null, 3);
                 case "PONG":
                     return new Pair<>(null, 4);
+                case "STARTCONN":
+                    return new Pair<>(null, 100);
+                case "ENDCONN":
+                    return new Pair<>(null, 200);
             }
         }
         return new Pair<>(null, -1);
