@@ -72,7 +72,10 @@ public class MessageController {
 
                     while (clientActive) { //Reads from stream in 10sec intervals. Stops when something halts the client externally.
                         char[] response = new char[1024];
-                        int charsRead = reader.read(response, 0 , 1024);
+                        int charsRead = -1;
+                        if(reader.ready()){
+                            charsRead = reader.read(response, 0 , 1024);
+                        }
                         if(charsRead!=-1){
                             Log.d("debug", "Received from server: " + Arrays.toString(response));
                             Log.d("debug", "Read "+charsRead+" bytes in total");
@@ -82,7 +85,7 @@ public class MessageController {
                         }else{
                             Log.d("debug", "Connection idle");
                         }
-                        Thread.sleep(10000);
+                        Thread.sleep(4000);
 
                         //Checking if the server closed the connection.
                         if(connectionTimedOut(keepAliveTimer, socket)){
