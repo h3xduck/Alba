@@ -11,12 +11,15 @@ import com.marsanpat.alba.ui.logs.LogFragment;
 
 import org.json.JSONException;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -62,7 +65,7 @@ public class MessageController {
             @Override
             public void run() {
                 try (Socket socket = new Socket(HOSTNAME, PORT)) {
-                    Thread.sleep(3000);//Artificial initial delay, just for testing purposes
+                    Thread.sleep(2000);//Artificial initial delay, just for testing purposes
                     long keepAliveTimer = 0; //TCP does not allow us to know if the server closed the connection, this emulates keep-alive functionality
                     clientActive = true; //Connection successful
                     liveClientState.postValue(true);
@@ -85,7 +88,7 @@ public class MessageController {
                         }else{
                             Log.d("debug", "Connection idle");
                         }
-                        Thread.sleep(4000);
+                        Thread.sleep(500);
 
                         //Checking if the server closed the connection.
                         if(connectionTimedOut(keepAliveTimer, socket)){
@@ -133,7 +136,7 @@ public class MessageController {
     }
 
     private boolean connectionTimedOut(long keepAliveTimer, Socket socket){
-        final long maxMillisWithoutNotice = 25000;
+        final long maxMillisWithoutNotice = 7000;
         long currentTimeMillis = System.currentTimeMillis();
         if(currentTimeMillis-keepAliveTimer>maxMillisWithoutNotice){
             sendPING(socket);
@@ -147,11 +150,13 @@ public class MessageController {
         try {
             outputStream = socket.getOutputStream();
         // create a data output stream from the output stream so we can send data through it
-        DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+        byte[] fillerArray = new byte[1024];
+        Arrays.fill(fillerArray, (byte) 0);
         Log.d("debug", "Sending PING to the Server");
         // write the message we want to send
-        dataOutputStream.writeUTF("PING:Hello server\n");
-        dataOutputStream.flush(); // send the message
+        writer.write("PING::Hello server".concat(Arrays.toString(fillerArray)), 0 , 1024);
+        writer.flush(); // send the message
         } catch (IOException e) {
             Log.e("debug", "Error writing in socket stream");
             e.printStackTrace();
