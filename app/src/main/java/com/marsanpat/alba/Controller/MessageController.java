@@ -35,6 +35,8 @@ public class MessageController {
     public static boolean clientActive = false;
     public static MutableLiveData<Boolean> liveClientState = new MutableLiveData<>();
 
+    private static int PROTOCOL_STANDARD_MESSAGE_LENGTH = 1024;
+
     //SINGLETON PATTERN
     public  static MessageController getInstance() {
         if (messageController==null) {
@@ -74,13 +76,13 @@ public class MessageController {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
                     while (clientActive) { //Reads from stream in 10sec intervals. Stops when something halts the client externally.
-                        char[] response = new char[1024];
+                        char[] response = new char[PROTOCOL_STANDARD_MESSAGE_LENGTH];
                         int charsRead = -1;
                         if(reader.ready()){
-                            charsRead = reader.read(response, 0 , 1024);
+                            charsRead = reader.read(response, 0 , PROTOCOL_STANDARD_MESSAGE_LENGTH);
                         }
                         if(charsRead!=-1){
-                            Log.d("debug", "Received from server: " + Arrays.toString(response));
+                            Log.v("debug", "Received from server: " + Arrays.toString(response));
                             Log.d("debug", "Read "+charsRead+" bytes in total");
                             //We received something from the server (might just be a PING), but enough to check connection is open
                             keepAliveTimer = System.currentTimeMillis();
@@ -136,11 +138,16 @@ public class MessageController {
     }
 
     private boolean connectionTimedOut(long keepAliveTimer, Socket socket){
-        final long maxMillisWithoutNotice = 7000;
+        final long maxMillisWithoutNotice = 5000;
+        final long delayWaitForPings = 3000;
         long currentTimeMillis = System.currentTimeMillis();
-        if(currentTimeMillis-keepAliveTimer>maxMillisWithoutNotice){
-            sendPING(socket);
+        if(currentTimeMillis-keepAliveTimer>maxMillisWithoutNotice+delayWaitForPings){
+            //We gave a bit of a delay for the server to send the Pong. If it's not here yet, we just disconnect.
             return true;
+        }else if(currentTimeMillis-keepAliveTimer>maxMillisWithoutNotice){
+            //We send a PING to the server. If it answers, the timer is reset.
+            sendPING(socket);
+            return false;
         }
         return false;
     }
@@ -151,15 +158,14 @@ public class MessageController {
             outputStream = socket.getOutputStream();
         // create a data output stream from the output stream so we can send data through it
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-        byte[] fillerArray = new byte[1024];
+        byte[] fillerArray = new byte[PROTOCOL_STANDARD_MESSAGE_LENGTH];
         Arrays.fill(fillerArray, (byte) 0);
         Log.d("debug", "Sending PING to the Server");
         // write the message we want to send
-        writer.write("PING::Hello server".concat(Arrays.toString(fillerArray)), 0 , 1024);
+        writer.write("PING::Hello server".concat(ProtocolParser.PROTOCOL_SEPARATOR).concat(Arrays.toString(fillerArray)), 0 , PROTOCOL_STANDARD_MESSAGE_LENGTH);
         writer.flush(); // send the message
-        } catch (IOException e) {
-            Log.e("debug", "Error writing in socket stream");
-            e.printStackTrace();
+        } catch (Exception e) {
+            Log.e("debug", "Error writing in socket stream: "+e.toString());
         }
     }
 }

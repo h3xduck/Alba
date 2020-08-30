@@ -11,15 +11,15 @@ public class ProtocolParser {
     private static final List<String> KEYWORDS =
             Arrays.asList("INCLUDE", "ERROR", "INFO", "PING", "PONG", "STARTCONN", "ENDCONN");
     private static final String HEADER_SEPARATOR = "::"; //Indicates where the header ends.
-    private static final String PROTOCOL_SEPARATOR = "\n##ALBA##\n"; //Indicates the end of the message received (the rest is filled with 0s).
+    public static final String PROTOCOL_SEPARATOR = "\n##ALBA##\n"; //Indicates the end of the message received (the rest is filled with 0s).
 
     private boolean isValidProtocolMessage(String input){
         try {
             String[] parts = input.split(HEADER_SEPARATOR, 2);
-            Log.d("debug", "Separated as " + parts[0] + " and " + parts[1]);
+            Log.v("debug", "Separated as " + parts[0] + " and " + parts[1]);
             if (KEYWORDS.contains(parts[0])) {
                 String[] parts2 = parts[1].split(PROTOCOL_SEPARATOR, 2);
-                Log.d("debug", "Then separated as " + parts2[0] + " and " + parts2[1]);
+                Log.v("debug", "Then separated as " + parts2[0] + " and " + parts2[1]);
                 if(parts2[1]!=null){
                     return true;
                 }

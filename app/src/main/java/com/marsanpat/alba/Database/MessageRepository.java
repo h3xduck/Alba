@@ -47,11 +47,11 @@ public class MessageRepository {
             public void onChanged(@Nullable final Message message) {
                 if(!newServerMessage.getValue().getMessage().equals("")){
                     String messageReceived = newServerMessage.getValue().getMessage();
-                    Log.d("debug", "Repository received: "+messageReceived);
+                    Log.v("debug", "Repository received: "+messageReceived);
                     ProtocolParser protocolParser = new ProtocolParser();
                     //The parser decides what to do with the new message.
                     Pair<String, Integer> resultBuffer = protocolParser.parse(messageReceived);
-                    List<Integer> codesAbsentFromDropping = Arrays.asList(100, 1, -1); //This codes are not dropped when there is no STARTCONN
+                    List<Integer> codesAbsentFromDropping = Arrays.asList(100, 1, -1, 3, 4); //This codes are not dropped when there is no STARTCONN
                     if(!codesAbsentFromDropping.contains(resultBuffer.second)&&!communicatingWithServer){
                         Log.e("debug", "DROPPED PACKAGE: Server did not send STARTCONN first");
                         return;
