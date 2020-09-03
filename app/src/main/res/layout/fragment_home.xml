@@ -40,7 +40,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_begin="80dp" />
+        app:layout_constraintGuide_begin="30dp" />
 
     <ImageButton
         android:id="@+id/refreshButton"
@@ -57,6 +57,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_end="80dp" />
+        app:layout_constraintGuide_end="30dp" />
+
+    <ImageButton
+        android:id="@+id/disconnectButton"
+        android:layout_width="69dp"
+        android:layout_height="74dp"
+        android:layout_marginEnd="20dp"
+        android:backgroundTint="@android:color/transparent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_baseline_cancel_24"
+        app:layout_constraintEnd_toStartOf="@+id/refreshButton"
+        app:layout_constraintTop_toTopOf="@+id/guideline2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -93,6 +93,25 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        ImageButton disconnectButton = (ImageButton) root.findViewById(R.id.disconnectButton);
+        disconnectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d("debug", "Disconnecting from server");
+                        MessageController controller = MessageController.getInstance();
+                        if(controller.isClientActive()){
+                            controller.disconnectFromServer();
+                        }
+                    }
+                });
+                thread.start();
+
+            }
+        });
+
 
         return root;
     }

@@ -68,7 +68,7 @@ public class MessageController {
             public void run() {
                 try (Socket socket = new Socket(HOSTNAME, PORT)) {
                     Thread.sleep(2000);//Artificial initial delay, just for testing purposes
-                    long keepAliveTimer = 0; //TCP does not allow us to know if the server closed the connection, this emulates keep-alive functionality
+                    long keepAliveTimer = System.currentTimeMillis(); //TCP does not allow us to know if the server closed the connection, this emulates keep-alive functionality
                     clientActive = true; //Connection successful
                     liveClientState.postValue(true);
                     Log.d("debug","Server connection started");
@@ -99,6 +99,8 @@ public class MessageController {
                             liveClientState.postValue(false);
                         }
                     }
+                    //If we reach this point something requested to stop the client. We send a final message to the server telling about it, and disconnect.
+                    sendDisconnectionMessage(socket);
 
 
                 } catch (UnknownHostException ex) {
@@ -143,6 +145,7 @@ public class MessageController {
         long currentTimeMillis = System.currentTimeMillis();
         if(currentTimeMillis-keepAliveTimer>maxMillisWithoutNotice+delayWaitForPings){
             //We gave a bit of a delay for the server to send the Pong. If it's not here yet, we just disconnect.
+            sendDisconnectionMessage(socket);
             return true;
         }else if(currentTimeMillis-keepAliveTimer>maxMillisWithoutNotice){
             //We send a PING to the server. If it answers, the timer is reset.
@@ -150,6 +153,11 @@ public class MessageController {
             return false;
         }
         return false;
+    }
+
+    public void disconnectFromServer(){
+        //Sufficient to stop our client (if it is connected to the server already).
+        clientActive = false;
     }
 
     private void sendPING(Socket socket){
@@ -168,4 +176,23 @@ public class MessageController {
             Log.e("debug", "Error writing in socket stream: "+e.toString());
         }
     }
+
+    private void sendDisconnectionMessage(Socket socket){
+        OutputStream outputStream = null;
+        try {
+            outputStream = socket.getOutputStream();
+            // create a data output stream from the output stream so we can send data through it
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+            byte[] fillerArray = new byte[PROTOCOL_STANDARD_MESSAGE_LENGTH];
+            Arrays.fill(fillerArray, (byte) 0);
+            Log.d("debug", "Sending DISCONN to the Server");
+            // write the message we want to send
+            writer.write("DISCONN::".concat(ProtocolParser.PROTOCOL_SEPARATOR).concat(Arrays.toString(fillerArray)), 0 , PROTOCOL_STANDARD_MESSAGE_LENGTH);
+            writer.flush(); // send the message
+        } catch (Exception e) {
+            Log.e("debug", "Error writing in socket stream: "+e.toString());
+        }
+    }
+
+
 }
