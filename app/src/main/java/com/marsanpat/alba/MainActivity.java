@@ -42,4 +42,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        MessageController controller = MessageController.getInstance();
+        controller.disconnectFromServer();
+        super.onDestroy();
+    }
+
 }

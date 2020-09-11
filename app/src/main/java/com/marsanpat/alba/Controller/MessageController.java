@@ -139,17 +139,26 @@ public class MessageController {
         return liveClientState;
     }
 
+
+    private long lastPingTimeMillis = 0;
+
     private boolean connectionTimedOut(long keepAliveTimer, Socket socket){
-        final long maxMillisWithoutNotice = 5000;
-        final long delayWaitForPings = 3000;
+        final long maxMillisWithoutNotice = 8000;
+        final long delayWaitForPings = 5000;
+        final long delayBetweenPings = 500;
         long currentTimeMillis = System.currentTimeMillis();
         if(currentTimeMillis-keepAliveTimer>maxMillisWithoutNotice+delayWaitForPings){
             //We gave a bit of a delay for the server to send the Pong. If it's not here yet, we just disconnect.
-            sendDisconnectionMessage(socket);
-            return true;
+            //sendDisconnectionMessage(socket);
+            sendPING(socket);
+            //return true;
         }else if(currentTimeMillis-keepAliveTimer>maxMillisWithoutNotice){
             //We send a PING to the server. If it answers, the timer is reset.
-            sendPING(socket);
+            if(currentTimeMillis-lastPingTimeMillis>delayBetweenPings){
+                lastPingTimeMillis = System.currentTimeMillis();
+                sendPING(socket);
+            }
+
             return false;
         }
         return false;

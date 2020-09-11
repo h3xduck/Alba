@@ -26,7 +26,7 @@ public class MessageRepository {
 
     private static MessageRepository messageRepository;
     private boolean communicatingWithServer = false;
-    private String buildUpControllerMessage =""; //Constructs the whole message received from the controller by concatenation.
+    private String buildUpControllerMessage =""; //Constructs the whole message received from the controller by String concatenation.
 
     //SINGLETON PATTERN
     public  static MessageRepository getInstance(Application application) {
