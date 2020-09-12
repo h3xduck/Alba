@@ -1,5 +1,6 @@
 package com.marsanpat.alba;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -13,6 +14,8 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 public class MainActivity extends AppCompatActivity {
+
+    public static Context contextOfApplication;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
 
+        contextOfApplication = getApplicationContext();
         attemptClientConnection();
     }
 

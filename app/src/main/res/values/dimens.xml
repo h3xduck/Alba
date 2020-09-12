@@ -7,4 +7,7 @@
     <dimen name="big_padding">16dp</dimen>
 
     <dimen name="min_height">16dp</dimen>
+
+    <dimen name="imagebuttonwithtext_height">80dp</dimen>
+    <dimen name="imagebuttonwithtext_width">80dp</dimen>
 </resources>

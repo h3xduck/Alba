@@ -1,6 +1,7 @@
 package com.marsanpat.alba.Database;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -8,6 +9,7 @@ import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.preference.PreferenceManager;
 
 import com.marsanpat.alba.Controller.MessageController;
 import com.marsanpat.alba.Controller.ProtocolParser;

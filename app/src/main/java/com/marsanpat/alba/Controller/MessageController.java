@@ -1,11 +1,14 @@
 package com.marsanpat.alba.Controller;
 
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.preference.PreferenceManager;
 
 import com.marsanpat.alba.Database.Message;
+import com.marsanpat.alba.MainActivity;
 import com.marsanpat.alba.Utils.JSONManager;
 import com.marsanpat.alba.ui.logs.LogFragment;
 
@@ -29,7 +32,7 @@ import java.util.stream.Collectors;
 public class MessageController {
     private static MessageController messageController;
 
-    private final String HOSTNAME = "192.168.1.46";
+    private String HOSTNAME;
     private final int PORT = 5001;
 
     public static boolean clientActive = false;
@@ -38,7 +41,7 @@ public class MessageController {
     private static int PROTOCOL_STANDARD_MESSAGE_LENGTH = 1024;
 
     //SINGLETON PATTERN
-    public  static MessageController getInstance() {
+    public static MessageController getInstance() {
         if (messageController==null) {
             messageController = new MessageController();
         }
@@ -46,6 +49,9 @@ public class MessageController {
     }
     private MessageController(){
         liveClientState.setValue(false);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.contextOfApplication);
+        HOSTNAME = prefs.getString("server_ip", "192.168.1.46");
+
     }
 
     public static MutableLiveData<Message> messageList = new MutableLiveData<Message>(new Message(""));
@@ -124,13 +130,14 @@ public class MessageController {
         }
     }
 
-    //TODO: RETURN A LIST
+    //TODO: RETURN A LIST?
     public LiveData<Message> getNewMessages(){
         LiveData<Message> result = messageList;
         //TODO check this up: messageList = null;
         return result;
     }
 
+    @Deprecated
     public boolean isClientActive(){
         return clientActive;
     }
@@ -143,6 +150,7 @@ public class MessageController {
     private long lastPingTimeMillis = 0;
 
     private boolean connectionTimedOut(long keepAliveTimer, Socket socket){
+        //TODO put this in preferences/settings
         final long maxMillisWithoutNotice = 8000;
         final long delayWaitForPings = 5000;
         final long delayBetweenPings = 500;

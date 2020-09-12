@@ -36,13 +36,6 @@ public class HomeFragment extends Fragment {
         homeViewModel =
                 new ViewModelProvider(this, new HomeFragment.MyViewModelFactory(this.getActivity().getApplication())).get(HomeViewModel.class);
         View root = inflater.inflate(R.layout.fragment_home, container, false);
-        final TextView textView = root.findViewById(R.id.text_home);
-        homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
         final ImageView serverConnectionImage = root.findViewById(R.id.serverConnectionImage);
         homeViewModel.getConnectionState().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
@@ -75,7 +68,7 @@ public class HomeFragment extends Fragment {
                             MessageController controller = MessageController.getInstance();
                             controller.startClient();
                             Thread.sleep(4000);
-                            if (controller.isClientActive()) {
+                            if (controller.getLiveClientState()!=null && controller.getLiveClientState().getValue()) {
                                 showToast("Connected successfully.");
                             } else {
                                 showToast("Could not connect to server.");

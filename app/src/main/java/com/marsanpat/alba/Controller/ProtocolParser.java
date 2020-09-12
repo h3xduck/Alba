@@ -7,6 +7,9 @@ import androidx.core.util.Pair;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * The ProtocolParser parses messages according to the AlbaProtocol
+ */
 public class ProtocolParser {
     private static final List<String> KEYWORDS =
             Arrays.asList("INCLUDE", "ERROR", "INFO", "PING", "PONG", "STARTCONN", "ENDCONN");
@@ -44,6 +47,7 @@ public class ProtocolParser {
 
 
     /**
+     * Parses a string. Returns values according to the AlbaProtocol.
      * Returns a pair of values:
      * String where some info is returned.
      * Integer with command code, indicating the repository what to do.

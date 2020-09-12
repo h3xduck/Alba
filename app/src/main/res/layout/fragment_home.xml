@@ -6,68 +6,142 @@
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
 
-    <TextView
-        android:id="@+id/text_home"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <LinearLayout
+        android:id="@+id/imagebutwithtext0"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/imagebuttonwithtext_height"
+        android:orientation="vertical"
+        android:weightSum="10"
+        app:layout_constraintTop_toTopOf="@id/guidelineup"
+        app:layout_constraintBottom_toBottomOf="@+id/view"
+        app:layout_constraintStart_toStartOf="@id/guidelineleft">
 
-    <ImageView
-        android:id="@+id/serverConnectionImage"
-        android:layout_width="86dp"
-        android:layout_height="89dp"
-        android:src="@android:drawable/presence_online"
-        app:layout_constraintStart_toStartOf="@+id/guideline3"
-        app:layout_constraintTop_toTopOf="@+id/guideline2" />
+        <ImageView
+            android:id="@+id/serverConnectionImage"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:src="@android:drawable/presence_online"
+            android:layout_weight="7"
+            app:layout_constraintStart_toStartOf="@+id/guidelineleft"
+            app:layout_constraintTop_toTopOf="@+id/view2" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="3"
+            android:gravity="center_horizontal"
+            android:text="Client state" />
+    </LinearLayout>
+
+
+
+
+    <LinearLayout
+        android:id="@+id/imagebutwithtext1"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/imagebuttonwithtext_height"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
+        android:orientation="vertical"
+        android:weightSum="10"
+        app:layout_constraintBottom_toBottomOf="@+id/view"
+        app:layout_constraintEnd_toStartOf="@+id/imagebutwithtext2"
+        app:layout_constraintStart_toEndOf="@+id/imagebutwithtext0"
+        app:layout_constraintTop_toTopOf="@+id/guidelineup">
+
+        <ImageButton
+            android:id="@+id/disconnectButton"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="7"
+            android:backgroundTint="@android:color/transparent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_baseline_cancel_24" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="3"
+            android:gravity="center_horizontal"
+            android:text="Disconnect" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/imagebutwithtext2"
+        android:layout_width="@dimen/imagebuttonwithtext_width"
+        android:layout_height="@dimen/imagebuttonwithtext_height"
+        android:orientation="vertical"
+        android:weightSum="10"
+
+        app:layout_constraintBottom_toBottomOf="@+id/view"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineright"
+        app:layout_constraintTop_toTopOf="@+id/guidelineup">
+
+        <ImageButton
+            android:id="@+id/refreshButton"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="7"
+            android:backgroundTint="@android:color/transparent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_baseline_autorenew_24"
+            app:layout_constraintBottom_toBottomOf="@+id/view"
+            app:layout_constraintEnd_toStartOf="@+id/guidelineright"
+            app:layout_constraintTop_toTopOf="@+id/guidelineup" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="3"
+            android:gravity="center_horizontal"
+            android:text="Refresh" />
+    </LinearLayout>
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline2"
+        android:id="@+id/guidelineup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="70dp" />
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline3"
+        android:id="@+id/guidelineleft"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_begin="30dp" />
 
-    <ImageButton
-        android:id="@+id/refreshButton"
-        android:layout_width="78dp"
-        android:layout_height="79dp"
-        android:backgroundTint="@android:color/transparent"
-        android:scaleType="centerCrop"
-        android:src="@drawable/ic_baseline_autorenew_24"
-        app:layout_constraintEnd_toStartOf="@+id/guideline5"
-        app:layout_constraintTop_toTopOf="@+id/guideline2" />
+
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline5"
+        android:id="@+id/guidelineright"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_end="30dp" />
 
-    <ImageButton
-        android:id="@+id/disconnectButton"
-        android:layout_width="69dp"
-        android:layout_height="74dp"
-        android:layout_marginEnd="20dp"
-        android:backgroundTint="@android:color/transparent"
-        android:scaleType="centerCrop"
-        android:src="@drawable/ic_baseline_cancel_24"
-        app:layout_constraintEnd_toStartOf="@+id/refreshButton"
-        app:layout_constraintTop_toTopOf="@+id/guideline2" />
+
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="92dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineright"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/guidelineleft"
+        app:layout_constraintTop_toTopOf="@+id/guidelineup" />
+
+    <View
+        android:id="@+id/view2"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineright"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/guidelineleft"
+        app:layout_constraintTop_toTopOf="@+id/guidelineup" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
