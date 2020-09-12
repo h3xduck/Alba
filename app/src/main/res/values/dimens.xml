@@ -8,6 +8,7 @@
 
     <dimen name="min_height">16dp</dimen>
 
-    <dimen name="imagebuttonwithtext_height">80dp</dimen>
+    <dimen name="imagebuttonwithtext_height">100dp</dimen>
     <dimen name="imagebuttonwithtext_width">80dp</dimen>
+    <dimen name="statelayout_spacebetweenitems">12dp</dimen>
 </resources>
