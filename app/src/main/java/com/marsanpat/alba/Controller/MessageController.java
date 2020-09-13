@@ -27,6 +27,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.stream.Collectors;
 
 public class MessageController {
@@ -38,7 +40,15 @@ public class MessageController {
     public static boolean clientActive = false;
     public static MutableLiveData<Boolean> liveClientState = new MutableLiveData<>();
 
-    private static int PROTOCOL_STANDARD_MESSAGE_LENGTH = 1024;
+    public static int PROTOCOL_STANDARD_MESSAGE_LENGTH = 1024;
+
+    private Socket controllerSocket;
+
+    /**
+     * This queue is filled with those Strings (consisting on a header+message) which will later be adapted
+     * to the AlbaProtocol and sent to the server.
+     */
+    private Queue<String> queueMessagesForServer;
 
     //SINGLETON PATTERN
     public static MessageController getInstance() {
@@ -51,6 +61,7 @@ public class MessageController {
         liveClientState.setValue(false);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.contextOfApplication);
         HOSTNAME = prefs.getString("server_ip", "192.168.1.46");
+        queueMessagesForServer = new LinkedList<String>();
 
     }
 
@@ -73,6 +84,7 @@ public class MessageController {
             @Override
             public void run() {
                 try (Socket socket = new Socket(HOSTNAME, PORT)) {
+                    controllerSocket = socket;
                     Thread.sleep(2000);//Artificial initial delay, just for testing purposes
                     long keepAliveTimer = System.currentTimeMillis(); //TCP does not allow us to know if the server closed the connection, this emulates keep-alive functionality
                     clientActive = true; //Connection successful
@@ -94,8 +106,9 @@ public class MessageController {
                             keepAliveTimer = System.currentTimeMillis();
                             messageList.postValue(new Message(new String(response)));
                         }else{
-                            Log.d("debug", "Connection idle");
+                            //Log.d("debug", "Connection idle");
                         }
+                        sendEnqueuedMessages(socket);
                         Thread.sleep(500);
 
                         //Checking if the server closed the connection.
@@ -118,6 +131,7 @@ public class MessageController {
                 }finally {
                     clientActive = false; //Client stopped.
                     liveClientState.postValue(false);
+                    controllerSocket = null;
                     Log.d("debug","Client stopped");
                 }
             }
@@ -130,11 +144,47 @@ public class MessageController {
         }
     }
 
+    /**
+     * If the client is running, it returns the socket which is currently being used.
+     * @return
+     */
+    public Socket getControllerSocket(){
+        try{
+            if(!this.getLiveClientState().getValue()){
+                return this.controllerSocket;
+            }
+        }catch(NullPointerException ex){
+            Log.e("debug", "Error obtaining controller socket externally"+ ex.toString());
+        }
+        return null;
+    }
+
+    public void sendEnqueuedMessages(Socket socket){
+        if(!this.queueMessagesForServer.isEmpty()){
+            String result = this.queueMessagesForServer.remove();
+            String message = new ProtocolBuilder().constructMessage(result);
+            OutputStream outputStream = null;
+            try {
+                outputStream = socket.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+                Log.d("debug", "Sending enqueued message to the Server");
+                writer.write(message, 0 , PROTOCOL_STANDARD_MESSAGE_LENGTH);
+                writer.flush(); // send the message
+            } catch (Exception e) {
+                Log.e("debug", "Error writing in socket stream: "+e.toString());
+            }
+        }
+    }
+
     //TODO: RETURN A LIST?
     public LiveData<Message> getNewMessages(){
         LiveData<Message> result = messageList;
         //TODO check this up: messageList = null;
         return result;
+    }
+
+    public void enqueueMessage(String message){
+        this.queueMessagesForServer.add(message);
     }
 
     @Deprecated
@@ -157,9 +207,8 @@ public class MessageController {
         long currentTimeMillis = System.currentTimeMillis();
         if(currentTimeMillis-keepAliveTimer>maxMillisWithoutNotice+delayWaitForPings){
             //We gave a bit of a delay for the server to send the Pong. If it's not here yet, we just disconnect.
-            //sendDisconnectionMessage(socket);
-            sendPING(socket);
-            //return true;
+            sendDisconnectionMessage(socket);
+            return true;
         }else if(currentTimeMillis-keepAliveTimer>maxMillisWithoutNotice){
             //We send a PING to the server. If it answers, the timer is reset.
             if(currentTimeMillis-lastPingTimeMillis>delayBetweenPings){
@@ -194,6 +243,23 @@ public class MessageController {
         }
     }
 
+    private void sendPONG(Socket socket){
+        OutputStream outputStream = null;
+        try {
+            outputStream = socket.getOutputStream();
+            // create a data output stream from the output stream so we can send data through it
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+            byte[] fillerArray = new byte[PROTOCOL_STANDARD_MESSAGE_LENGTH];
+            Arrays.fill(fillerArray, (byte) 0);
+            Log.d("debug", "Sending PONG to the Server");
+            // write the message we want to send
+            writer.write("PONG::Hello server".concat(ProtocolParser.PROTOCOL_SEPARATOR).concat(Arrays.toString(fillerArray)), 0 , PROTOCOL_STANDARD_MESSAGE_LENGTH);
+            writer.flush(); // send the message
+        } catch (Exception e) {
+            Log.e("debug", "Error writing in socket stream: "+e.toString());
+        }
+    }
+
     private void sendDisconnectionMessage(Socket socket){
         OutputStream outputStream = null;
         try {
@@ -204,7 +270,8 @@ public class MessageController {
             Arrays.fill(fillerArray, (byte) 0);
             Log.d("debug", "Sending DISCONN to the Server");
             // write the message we want to send
-            writer.write("DISCONN::".concat(ProtocolParser.PROTOCOL_SEPARATOR).concat(Arrays.toString(fillerArray)), 0 , PROTOCOL_STANDARD_MESSAGE_LENGTH);
+            String toWrite = new ProtocolBuilder().constructMessage("DISCONN::", "");
+            writer.write(toWrite, 0 , PROTOCOL_STANDARD_MESSAGE_LENGTH);
             writer.flush(); // send the message
         } catch (Exception e) {
             Log.e("debug", "Error writing in socket stream: "+e.toString());

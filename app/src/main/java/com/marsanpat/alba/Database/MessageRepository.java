@@ -78,9 +78,11 @@ public class MessageRepository {
                             buildUpControllerMessage+=resultBuffer.first;
                             break;
                         case 3:
+                            Log.i("debug", "Server sent PING");
+                            MessageController.getInstance().enqueueMessage("PONG::Hello server");
+                            break;
                         case 4:
-                            //TODO create PING-PONG(s) logic
-                            Log.i("debug", "Server sent ping/pong");
+                            Log.i("debug", "Server sent PONG");
                             break;
                         case 100:
                             Log.i("debug", "STARTCONN received");
