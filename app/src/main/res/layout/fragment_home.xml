@@ -145,5 +145,16 @@
         android:orientation="vertical"
         app:layout_constraintGuide_end="30dp" />
 
+    <Button
+        android:id="@+id/testbutton_dblastline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:inputType="textMultiLine"
+        android:text="Receive last DB row\n (Test)"
+        app:layout_constraintEnd_toStartOf="@+id/guidelineright"
+        app:layout_constraintStart_toStartOf="@+id/guidelineleft"
+        app:layout_constraintTop_toBottomOf="@+id/state_layout" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

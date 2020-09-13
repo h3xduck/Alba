@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -102,6 +103,18 @@ public class HomeFragment extends Fragment {
                 });
                 thread.start();
 
+            }
+        });
+
+        Button testButton = root.findViewById(R.id.testbutton_dblastline);
+        testButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MessageController controller = MessageController.getInstance();
+                if(controller.getLiveClientState().getValue()){
+                    Log.d("debug", "Requesting last db line");
+                    controller.testRequestLastDBline();
+                }
             }
         });
 

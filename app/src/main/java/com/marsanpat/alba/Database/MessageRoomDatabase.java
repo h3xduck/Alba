@@ -1,6 +1,7 @@
 package com.marsanpat.alba.Database;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.room.Database;
@@ -46,11 +47,10 @@ public abstract class MessageRoomDatabase extends RoomDatabase {
                 // Populate the database in the background.
                 // If you want to start with more words, just add them.
                 MessageDao dao = INSTANCE.messageDao();
-                //dao.deleteAll();
+                Log.i("debug", "The DB is set to delete all contents at start!!");
+                dao.deleteAll();
 
-                Message message = new Message("Hello");
-                dao.insert(message);
-                message = new Message("World");
+                Message message = new Message("Application started");
                 dao.insert(message);
             });
         }

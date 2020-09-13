@@ -150,7 +150,7 @@ public class MessageController {
      */
     public Socket getControllerSocket(){
         try{
-            if(!this.getLiveClientState().getValue()){
+            if(this.getLiveClientState().getValue()){
                 return this.controllerSocket;
             }
         }catch(NullPointerException ex){
@@ -227,52 +227,43 @@ public class MessageController {
     }
 
     private void sendPING(Socket socket){
-        OutputStream outputStream = null;
-        try {
-            outputStream = socket.getOutputStream();
-        // create a data output stream from the output stream so we can send data through it
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-        byte[] fillerArray = new byte[PROTOCOL_STANDARD_MESSAGE_LENGTH];
-        Arrays.fill(fillerArray, (byte) 0);
         Log.d("debug", "Sending PING to the Server");
-        // write the message we want to send
-        writer.write("PING::Hello server".concat(ProtocolParser.PROTOCOL_SEPARATOR).concat(Arrays.toString(fillerArray)), 0 , PROTOCOL_STANDARD_MESSAGE_LENGTH);
-        writer.flush(); // send the message
-        } catch (Exception e) {
-            Log.e("debug", "Error writing in socket stream: "+e.toString());
-        }
+        String toWrite = new ProtocolBuilder().constructMessage("PING::", "Hello server");
+        sendMessageToServer(toWrite, socket);
     }
 
     private void sendPONG(Socket socket){
-        OutputStream outputStream = null;
-        try {
-            outputStream = socket.getOutputStream();
-            // create a data output stream from the output stream so we can send data through it
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-            byte[] fillerArray = new byte[PROTOCOL_STANDARD_MESSAGE_LENGTH];
-            Arrays.fill(fillerArray, (byte) 0);
-            Log.d("debug", "Sending PONG to the Server");
-            // write the message we want to send
-            writer.write("PONG::Hello server".concat(ProtocolParser.PROTOCOL_SEPARATOR).concat(Arrays.toString(fillerArray)), 0 , PROTOCOL_STANDARD_MESSAGE_LENGTH);
-            writer.flush(); // send the message
-        } catch (Exception e) {
-            Log.e("debug", "Error writing in socket stream: "+e.toString());
-        }
+        Log.d("debug", "Sending PONG to the Server");
+        String toWrite = new ProtocolBuilder().constructMessage("PONG::", "Hello server");
+        sendMessageToServer(toWrite, socket);
     }
 
     private void sendDisconnectionMessage(Socket socket){
+        Log.d("debug", "Sending DISCONN to the Server");
+        String toWrite = new ProtocolBuilder().constructMessage("DISCONN::", "");
+        sendMessageToServer(toWrite, socket);
+
+    }
+
+    public void testRequestLastDBline(){
+        Socket sock = this.getControllerSocket();
+        if(sock!=null){
+            String message = new ProtocolBuilder().constructMessage("REQUEST::", "testlastrowdb");
+            enqueueMessage(message);
+        }else{
+            Log.e("debug", "Requested to send last db line, but socket is closed");
+        }
+    }
+
+    private void sendMessageToServer(String message, Socket socket){
         OutputStream outputStream = null;
         try {
             outputStream = socket.getOutputStream();
             // create a data output stream from the output stream so we can send data through it
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-            byte[] fillerArray = new byte[PROTOCOL_STANDARD_MESSAGE_LENGTH];
-            Arrays.fill(fillerArray, (byte) 0);
-            Log.d("debug", "Sending DISCONN to the Server");
-            // write the message we want to send
-            String toWrite = new ProtocolBuilder().constructMessage("DISCONN::", "");
-            writer.write(toWrite, 0 , PROTOCOL_STANDARD_MESSAGE_LENGTH);
+            writer.write(message, 0 , PROTOCOL_STANDARD_MESSAGE_LENGTH);
             writer.flush(); // send the message
+            Log.d("debug", "Message sent");
         } catch (Exception e) {
             Log.e("debug", "Error writing in socket stream: "+e.toString());
         }
