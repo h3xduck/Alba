@@ -1,7 +1,6 @@
 # ALBA
 
 This repository contains the source code of the ALBA mobile app, the counterpart of [ALBA-server](https://github.com/marsan27/Alba-Server/). This is the second in a series of projects I have been working on during my free time in order to improve my skills on software development, being the first one [Greta](https://github.com/marsan27/Greta/).
-The ALBA app has been developed following the MVC-repository design pattern.
 
 ## What is ALBA?
 ALBA is nothing but the product of one of the typical desires after watching an Iron Man film. Building an AI-powered system which controls and monitors your house, manages your appointments and, to put it bluntly, makes your life easier and cooler. (Let's forget about the flying combat suit for now).
@@ -21,6 +20,9 @@ Soon enough I realised this was going to take more than some days. Although I re
 - [ ] *7. Security and pentesting phase. 
 
 \* : The reason to leave this important phase for the end is that I still do not have the skills needed for this task. Until this is 'completed', no ports will be ever opened, the server will be kept LAN-only.
+
+## About the app
+The ALBA app is a material design Android app which has been developed following the MVC-repository design pattern. It uses Room for database management and  TCP sockets for server communication.
 
 ## Disclaimer
 This is a personal side-project and by no means it is supposed to come with any warranty, it is offered AS-IS and I am not responsible of any harm derived from its use.
