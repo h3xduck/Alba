@@ -1,3 +1,6 @@
+![Maintainability](https://img.shields.io/static/v1?label=maintainability&message=DEPRECATED&color=red)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/h3xduck/Alba)
+![GitHub last commit](https://img.shields.io/github/last-commit/h3xduck/Alba)
 # ALBA
 
 This repository contains the source code of the ALBA mobile app, the counterpart of [ALBA-server](https://github.com/h3xduck/Alba-Server/). This is the second in a series of projects I have been working on during my free time in order to improve my skills on software development, being the first one [Greta](https://github.com/h3xduck/Greta/).
